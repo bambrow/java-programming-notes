@@ -1,0 +1,178 @@
+
+Intuitively, a map M supports the abstraction of using keys as “addresses” that help 
+locate an entry. As a mental warm-up, consider a restricted setting in which a map 
+with n entries uses keys that are known to be integers in a range from 0 to N − 1 
+for some N ≥ n. In this case, we can represent the map using a lookup table of length N.
+
+In this representation, we store the value associated with key k at index k of the table 
+(presuming that we have a distinct way to represent an empty slot). Basic map operations 
+get, put, and remove can be implemented in O(1) worst-case time.
+
+The novel concept for a hash table is the use of a hash function to map general keys to 
+corresponding indices in a table. Ideally, keys will be well distributed in the range 
+from 0 to N − 1 by a hash function, but in practice there may be two or more distinct 
+keys that get mapped to the same index. As a result, we will conceptualize our table 
+as a bucket array, in which each bucket may manage a collection of entries that are 
+sent to a specific index by the hash function. (To save space, an empty bucket may be 
+replaced by a null reference.)
+
+The goal of a hash function, h, is to map each key k to an integer in the range [0, N − 1], 
+where N is the capacity of the bucket array for a hash table. Equipped with such a hash 
+function, h, the main idea of this approach is to use the hash function value, h(k), as 
+an index into our bucket array, A, instead of the key k (which may not be appropriate 
+for direct use as an index). That is, we store the entry (k,v) in the bucket A[h(k)].
+
+If there are two or more keys with the same hash value, then two different entries will 
+be mapped to the same bucket in A. In this case, we say that a collision has occurred. 
+To be sure, there are ways of dealing with collisions, which we will discuss later, 
+but the best strategy is to try to avoid them in the first place. We say that a hash 
+function is “good” if it maps the keys in our map so as to sufficiently minimize collisions. 
+For practical reasons, we also would like a hash function to be fast and easy to compute.
+
+It is common to view the evaluation of a hash function, h(k), as consisting of two 
+portions — a hash code that maps a key k to an integer, and a compression function 
+that maps the hash code to an integer within a range of indices, [0, N − 1], for a 
+bucket array.
+
+The advantage of separating the hash function into two such components is that the hash 
+code portion of that computation is independent of a specific hash table size. This 
+allows the development of a general hash code for each object that can be used for a 
+hash table of any size; only the compression function depends upon the table size. This 
+is particularly convenient, because the underlying bucket array for a hash table may be 
+dynamically resized, depending on the number of entries currently stored in the map.
+
+Treating the Bit Representation as an Integer
+Polynomial Hash Codes
+Cyclic-Shift Hash Codes
+
+The hash code for a key k will typically not be suitable for immediate use with a bucket 
+array, because the integer hash code may be negative or may exceed the capacity of the 
+bucket array. Thus, once we have determined an integer hash code for a key object k, 
+there is still the issue of mapping that integer into the range [0, N − 1]. This 
+computation, known as a compression function, is the second action per- formed as part of 
+an overall hash function. A good compression function is one that minimizes the number of 
+collisions for a given set of distinct hash codes.
+
+A simple compression function is the division method, which maps an integer i to
+
+i mod N,
+
+where N, the size of the bucket array, is a fixed positive integer. Additionally, 
+if we take N to be a prime number, then this compression function helps “spread out” 
+the distribution of hashed values. Indeed, if N is not prime, then there is greater 
+risk that patterns in the distribution of hash codes will be repeated in the distribution 
+of hash values, thereby causing collisions. For example, if we insert keys with hash 
+codes {200,205,210,215,220,...,600} into a bucket array of size 100, then each hash code 
+will collide with three others. But if we use a bucket array of size 101, then there will 
+be no collisions. If a hash function is chosen well, it should ensure that the probability 
+of two different keys getting hashed to the same bucket is 1/N. Choosing N to be a prime 
+number is not always enough, however, for if there is a repeated pattern of hash codes 
+of the form pN + q for several different p’s, then there will still be collisions.
+
+A more sophisticated compression function, which helps eliminate repeated patterns in a 
+set of integer keys, is the Multiply-Add-and-Divide (or “MAD”) method. This method maps 
+an integer i to
+
+[(ai+b) mod p] mod N,
+
+where N is the size of the bucket array, p is a prime number larger than N, and a and b 
+are integers chosen at random from the interval [0, p − 1], with a > 0. This compression 
+function is chosen in order to eliminate repeated patterns in the set of hash codes and 
+get us closer to having a “good” hash function, that is, one such that the probability 
+any two different keys collide is 1/N. This good behavior would be the same as we would 
+have if these keys were “thrown” into A uniformly at random.
+
+The main idea of a hash table is to take a bucket array, A, and a hash function, h, and 
+use them to implement a map by storing each entry (k,v) in the “bucket” A[h(k)]. This 
+simple idea is challenged, however, when we have two distinct keys, k1 and k2, such that 
+h(k1) = h(k2). The existence of such collisions prevents us from simply inserting a new 
+entry (k,v) directly into the bucket A[h(k)]. It also complicates our procedure for 
+performing insertion, search, and deletion operations.
+
+A simple and efficient way for dealing with collisions is to have each bucket A[j] store 
+its own secondary container, holding all entries (k,v) such that h(k) = j. A natural choice 
+for the secondary container is a small map instance implemented using an unordered list. 
+This collision resolution rule is known as separate chaining.
+
+In the worst case, operations on an individual bucket take time proportional to the size 
+of the bucket. Assuming we use a good hash function to index the n entries of our map in 
+a bucket array of capacity N, the expected size of a bucket is n/N. Therefore, if given 
+a good hash function, the core map operations run in O(⌈n/N⌉). The ratio λ = n/N, called 
+the load factor of the hash table, should be bounded by a small constant, preferably below 
+1. As long as λ is O(1), the core operations on the hash table run in O(1) expected time.
+
+The separate chaining rule has many nice properties, such as affording simple implementations 
+of map operations, but it nevertheless has one slight disadvantage: It requires the use 
+of an auxiliary data structure to hold entries with colliding keys. If space is at a 
+premium (for example, if we are writing a program for a small hand- held device), then 
+we can use the alternative approach of storing each entry directly in a table slot. This 
+approach saves space because no auxiliary structures are employed, but it requires a 
+bit more complexity to properly handle collisions. There are several variants of this 
+approach, collectively referred to as open addressing schemes, which we discuss next. Open 
+addressing requires that the load factor is always at most 1 and that entries are stored 
+directly in the cells of the bucket array itself.
+
+A simple method for collision handling with open addressing is linear probing. With this 
+approach, if we try to insert an entry (k, v) into a bucket A[ j] that is already occupied, 
+where j = h(k), then we next try A[(j+1) mod N]. If A[(j+1) mod N] is also occupied, then 
+we try A[(j + 2) mod N], and so on, until we find an empty bucket that can accept the new 
+entry. Once this bucket is located, we simply insert the entry there. Of course, this 
+collision resolution strategy requires that we change the implementation when searching 
+for an existing key—the first step of all get, put, or remove operations. In particular, 
+to attempt to locate an entry with key equal to k, we must examine consecutive slots, 
+starting from A[h(k)], until we either find an entry with an equal key or we find an empty bucket.
+
+Although use of an open addressing scheme can save space, linear probing suffers from an 
+additional disadvantage. It tends to cluster the entries of a map into contiguous runs, 
+which may even overlap (particularly if more than half of the cells in the hash table are 
+occupied). Such contiguous runs of occupied hash cells cause searches to slow down considerably.
+
+Another open addressing strategy, known as quadratic probing, iteratively tries the buckets 
+A[(h(k)+ f(i)) mod N], for i = 0,1,2,..., where f(i) = i^2, until finding an empty bucket. 
+As with linear probing, the quadratic probing strategy complicates the removal operation, 
+but it does avoid the kinds of clustering patterns that occur with linear probing. 
+Nevertheless, it creates its own kind of clustering, called secondary clustering, where 
+the set of filled array cells still has a nonuniform pattern, even if we assume that 
+the original hash codes are distributed uniformly. When N is prime and the bucket array 
+is less than half full, the quadratic probing strategy is guaranteed to find an empty slot. 
+However, this guarantee is not valid once the table becomes at least half full, or if N 
+is not chosen as a prime number.
+
+An open addressing strategy that does not cause clustering of the kind produced by 
+linear probing or the kind produced by quadratic probing is the double hashing strategy. 
+In this approach, we choose a secondary hash function, h′, and if h maps some key k to a 
+bucket A[h(k)] that is already occupied, then we iteratively try the buckets 
+A[(h(k)+ f(i)) mod N] next, for i = 1,2,3,..., where f(i) = i·h′(k). In this scheme, 
+the secondary hash function is not allowed to evaluate to zero; a common choice is 
+h′(k) = q − (k mod q), for some prime number q < N. Also, N should be a prime.
+
+Another approach to avoid clustering with open addressing is to iteratively try 
+buckets A[(h(k)+ f(i)) mod N] where f(i) is based on a pseudorandom number generator, 
+providing a repeatable, but somewhat arbitrary, sequence of subsequent probes that 
+depends upon bits of the original hash code.
+
+In the hash table schemes described thus far, it is important that the load factor, 
+λ = n/N, be kept below 1. With separate chaining, as λ gets very close to 1, the 
+probability of a collision greatly increases, which adds overhead to our operations, 
+since we must revert to linear-time list-based methods in buckets that have collisions. 
+Experiments and average-case analysis suggest that we should maintain λ < 0.9 for hash 
+tables with separate chaining. (By default, Java’s implementation uses separate chaining 
+with λ < 0.75.)
+
+With open addressing, on the other hand, as the load factor λ grows beyond 0.5 and 
+starts approaching 1, clusters of entries in the bucket array start to grow as well. 
+These clusters cause the probing strategies to “bounce around” the bucket array for a 
+considerable amount of time before they find an empty slot. Experiments suggest that 
+we should maintain λ < 0.5 for an open addressing scheme with linear probing, and perhaps 
+only a bit higher for other open addressing schemes.
+
+If an insertion causes the load factor of a hash table to go above the specified threshold, 
+then it is common to resize the table (to regain the specified load factor) and to 
+reinsert all objects into this new table. Although we need not define a new hash code 
+for each object, we do need to re-apply a new compression function that takes into 
+consideration the size of the new table. Rehashing will generally scatter the entries 
+throughout the new bucket array. When rehashing to a new table, it is a good requirement 
+for the new array’s size to be a prime number approximately double the previous size. 
+In that way, the cost of rehashing all the entries in the table can be amortized against 
+the time used to insert them in the first place.
+

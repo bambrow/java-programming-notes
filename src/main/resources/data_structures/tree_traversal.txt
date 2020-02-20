@@ -1,0 +1,89 @@
+
+A traversal of a tree T is a systematic way of accessing, or “visiting,” 
+all the positions of T . The specific action associated with the “visit” 
+of a position p depends on the application of this traversal, and could 
+involve anything from incrementing a counter to performing some complex 
+computation for p.
+
+In a preorder traversal of a tree T , the root of T is visited first and 
+then the subtrees rooted at its children are traversed recursively. If the 
+tree is ordered, then the subtrees are traversed according to the order 
+of the children.
+
+pseudocode:
+
+Algorithm preorder(p):
+	perform the “visit” action for position p { this happens before any recursion } 
+	for each child c in children(p) do
+		preorder(c) { recursively traverse the subtree rooted at c }
+		
+Another important tree traversal algorithm is the postorder traversal. 
+In some sense, this algorithm can be viewed as the opposite of the preorder 
+traversal, because it recursively traverses the subtrees rooted at the 
+children of the root first, and then visits the root (hence, the name 
+“postorder”).
+
+pseudocode:
+
+Algorithm postorder(p):
+	for each child c in children(p) do
+		postorder(c) { recursively traverse the subtree rooted at c }
+	perform the “visit” action for position p { this happens after any recursion }
+
+At each position p, the nonrecursive part of the traversal algorithm 
+requires time O(cp + 1), where cp is the number of children of p, under 
+the assumption that the “visit” itself takes O(1) time.
+
+Although the preorder and postorder traversals are common ways of visiting 
+the positions of a tree, another approach is to traverse a tree so that we 
+visit all the positions at depth d before we visit the positions at depth 
+d + 1. Such an algorithm is known as a breadth-first traversal.
+
+pseudocode:
+
+Algorithm breadthfirst():
+	Initialize queue Q to contain root() 
+	while Q not empty do
+		p = Q.dequeue() { p is the oldest entry in the queue }
+		perform the “visit” action for position p
+		for each child c in children(p) do
+			Q.enqueue(c) { add p’s children to the end of the queue for later visits }
+
+The process is not recursive, since we are not traversing entire subtrees 
+at once. We use a queue to produce a FIFO (i.e., first-in first-out) semantics 
+for the order in which we visit nodes. The overall running time is O(n), 
+due to the n calls to enqueue and n calls to dequeue.
+
+The standard preorder, postorder, and breadth-first traversals that were 
+introduced for general trees can be directly applied to binary trees.
+
+During an inorder traversal, we visit a position between the recursive 
+traversals of its left and right subtrees. The inorder traversal of a binary 
+tree T can be informally viewed as visiting the nodes of T “from left to 
+right.” Indeed, for every position p, the inorder traversal visits p after 
+all the positions in the left subtree of p and before all the positions in 
+the right subtree of p.
+
+Algorithm inorder(p):
+	if p has a left child lc then
+		inorder(lc) { recursively traverse the left subtree of p }
+	perform the “visit” action for position p 
+	if p has a right child rc then
+		inorder(rc) { recursively traverse the right subtree of p }
+		
+An important application of the inorder traversal algorithm arises when we 
+store an ordered sequence of elements in a binary tree, defining a structure 
+we call a binary search tree. Let S be a set whose unique elements have an 
+order relation. For example, S could be a set of integers. A binary search 
+tree for S is a proper binary tree T such that, for each internal position 
+p of T :
+• Position p stores an element of S, denoted as e(p).
+• Elements stored in the left subtree of p (if any) are less than e(p).
+• Elements stored in the right subtree of p (if any) are greater than e(p).
+
+Note that the running time of searching in a binary search tree T is 
+proportional to the height of T. The height of a binary tree with n 
+nodes can be as small as log(n+1)−1 or as large as n−1. Thus, binary 
+search trees are most efficient when they have small height.
+
+

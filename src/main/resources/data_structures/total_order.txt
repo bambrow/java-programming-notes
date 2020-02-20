@@ -1,0 +1,45 @@
+
+In defining the priority queue ADT, we can allow any type of object to serve as a key, 
+but we must be able to compare keys to each other in a meaningful way. More so, the 
+results of the comparisons must not be contradictory. For a comparison rule, which we 
+denote by ≤, to be self-consistent, it must define a total order relation, which is to 
+say that it satisfies the following properties for any keys k1, k2, and k3:
+
+• Comparability property: k1 ≤ k2 or k2 ≤ k1.
+• Antisymmetric property: if k1 ≤ k2 and k2 ≤ k1, then k1 = k2. 
+• Transitive property: if k1 ≤ k2 and k2 ≤ k3, then k1 ≤ k3.
+
+The comparability property states that comparison rule is defined for every pair of keys. 
+Note that this property implies the following one:
+
+• Reflexive property: k ≤ k.
+
+A comparison rule, ≤, that defines a total order relation will never lead to a contradiction. 
+Such a rule defines a linear ordering among a set of keys; hence, if a (finite) set of 
+elements has a total order defined for it, then the notion of a minimal key, kmin, is 
+well defined, as a key in which kmin ≤ k, for any other key k in our set.
+
+The Comparable Interface
+
+Java provides two means for defining comparisons between object types. The first of these is 
+that a class may define what is known as the natural ordering of its instances by formally 
+implementing the java.lang.Comparable interface, which includes a single method, compareTo. 
+The syntax a.compareTo(b) must return an integer i with the following meaning:
+
+• i<0 designates that a<b.
+• i=0 designates that a=b.
+• i>0 designates that a>b.
+
+For example, the compareTo method of the String class defines the natural ordering of strings 
+to be lexicographic, which is a case-sensitive extension of the alphabetic ordering to Unicode.
+
+The Comparator Interface
+
+In some applications, we may want to compare objects according to some notion other than their 
+natural ordering. For example, we might be interested in which of two strings is the shortest, 
+or in defining our own complex rules for judging which of two stocks is more promising. 
+To support generality, Java defines the java.util.Comparator interface. A comparator is an 
+object that is external to the class of the keys it compares. It provides a method with the 
+signature compare(a, b) that returns an integer with similar meaning to the compareTo method 
+described above.
+
