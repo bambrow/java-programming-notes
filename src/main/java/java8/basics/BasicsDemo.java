@@ -80,6 +80,8 @@ public class BasicsDemo {
             // sorted
             System.out.println(names.stream().sorted().collect(Collectors.toList()));
             // [Amy, David, Susan, Zach]
+            System.out.println(names.stream().sorted().findFirst().get());
+            // Amy
 
             // map
             System.out.println(names.stream().map(String::toUpperCase).collect(Collectors.toList()));
@@ -97,6 +99,34 @@ public class BasicsDemo {
             Optional<String> reduced = names.stream().sorted().reduce((s1, s2) -> s1 + "," + s2);
             reduced.ifPresent(System.out::println);
             // Amy,David,Susan,Zach
+
+            // foreach
+            names.stream().forEach(System.out::print);
+            // DavidZachAmySusan
+            System.out.println();
+
+            // flatmap
+            List<List<String>> namesFlatMap = Collections.singletonList(names);
+            System.out.println(namesFlatMap);
+            System.out.println(namesFlatMap.stream().flatMap(Collection::stream).collect(Collectors.toList()));
+            // [[David, Zach, Amy, Susan]]
+            // [David, Zach, Amy, Susan]
+
+            // max, min
+            System.out.println(names.stream().max(Comparator.comparingInt(s -> s.charAt(0))).get());
+            System.out.println(names.stream().min(Comparator.comparingInt(s -> s.charAt(0))).get());
+            // Zach
+            // Amy
+
+            // limit
+            System.out.println(names.stream().sorted().limit(2).collect(Collectors.toList()));
+            // [Amy, David]
+
+            // collect
+            System.out.println(names.stream().collect(Collectors.toMap(String::new, String::length)));
+            // {Zach=4, Susan=5, David=5, Amy=3}
+            System.out.println(names.stream().collect(Collectors.groupingBy(String::length)));
+            // {3=[Amy], 4=[Zach], 5=[David, Susan]}
         }
 
     }
