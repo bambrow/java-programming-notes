@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class FilesDemo {
+public class FilesDemo1 {
     @SneakyThrows
     public static void main(String[] args) {
         String projectDir = new File(".").getCanonicalPath();
